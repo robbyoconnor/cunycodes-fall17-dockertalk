@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>CUNY Codes Fall 2017 Docker</title>
+<meta name="author" content="(Robby O'Connor)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/reveal.js/3.0.0/css/reveal.css"/>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/reveal.js/3.0.0/css/theme/night.css" id="theme"/>
+
+<link rel="stylesheet" href="./docker.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'https://cdn.jsdelivr.net/reveal.js/3.0.0/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide"><h1 class="title">CUNY Codes Fall 2017 Docker</h1><h2 class="author">Robby O'Connor</h2><p class="date">Created: 2017-09-25 Mon 19:39</p>
+</section>
+<section id="table-of-contents">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#/slide-orgf322e17">Introduction</a></li>
+<li><a href="#/slide-org76a6140">What is Docker</a></li>
+<li><a href="#/slide-org1f65693">Overview of Docker</a></li>
+<li><a href="#/slide-org256f4cc">Getting Docker</a></li>
+<li><a href="#/slide-orgf1c7be7">Our first Dockerfile (building our first Image)</a></li>
+<li><a href="#/slide-org2943055">Where's the database and why do I care about Docker at all?</a></li>
+<li><a href="#/slide-org0bcb70b">Overview on Docker Compose</a></li>
+<li><a href="#/slide-orgb1f4e50">More Info</a></li>
+</ul>
+</div>
+</div>
+</section>
+
+<section>
+<section id="slide-orgf322e17">
+<h2 id="orgf322e17">Introduction</h2>
+<div class="outline-text-2" id="text-orgf322e17">
+</div>
+</section>
+<section id="slide-org234da95">
+<h3 id="org234da95">Hunter College CS Alum (Fall 2014)</h3>
+</section>
+<section id="slide-org34915b7">
+<h3 id="org34915b7">CUNY Codes Alum (Spring 2016) and Peer Mentor</h3>
+</section>
+<section id="slide-orgd6652e0">
+<h3 id="orgd6652e0">Infrastructure Engineer/Steering Committee Member for LibreHealth(<a href="http://librehealth.io">http://librehealth.io</a>)</h3>
+</section>
+<section id="slide-org5723a19">
+<h3 id="org5723a19">I Really Love Docker &#x2013; A LOT!</h3>
+</section>
+</section>
+<section>
+<section id="slide-org76a6140">
+<h2 id="org76a6140">What is Docker</h2>
+<div class="outline-text-2" id="text-org76a6140">
+</div>
+</section>
+<section id="slide-org523989a">
+<h3 id="org523989a">Docker is a way to run containerized applications.</h3>
+</section>
+<section id="slide-org316b671">
+<h3 id="org316b671">What does this mean?</h3>
+<div class="outline-text-3" id="text-org316b671">
+</div>
+</section>
+<section id="slide-orge17fecd">
+<h4 id="orge17fecd">Isolated from all other processes, much like a virtual machine.</h4>
+</section>
+<section id="slide-org2380cfc">
+<h4 id="org2380cfc">The isolation pertains to: process id, networking, interprocess communication (IPC), mounts, and unix timesharing system.</h4>
+</section>
+<section id="slide-org6d0eca5">
+<h4 id="org6d0eca5">The isolation mechanism is called namespaces. Another feature which is used is called control groups, or cgroups.</h4>
+</section>
+<section id="slide-org8d2ce8e">
+<h4 id="org8d2ce8e">cgroups allow you to limit resource usage.</h4>
+</section>
+<section id="slide-org5f643f3">
+<h4 id="org5f643f3">A container is not real thing, it's what the namespaces and cgroups when pulled together form.</h4>
+
+</section>
+</section>
+<section>
+<section id="slide-org1f65693">
+<h2 id="org1f65693">Overview of Docker</h2>
+<div class="outline-text-2" id="text-org1f65693">
+</div>
+</section>
+<section id="slide-org3a433db">
+<h3 id="org3a433db">Fundamentally different from Virtual Machines</h3>
+</section>
+<section >
+<p>
+<img src="vm.png" alt="vm.png" />
+<img src="container.png" alt="container.png" />
+</p>
+</section>
+<section id="slide-org5c21a7e">
+<h3 id="org5c21a7e">Images</h3>
+<aside class="notes">
+<p>
+Provides a means for collecting pre-built docker containers which can be replicated. This is where Docker shines.
+<a href="https://hub.docker.com">https://hub.docker.com</a> has a lot of images. Sizes can vary, but typically span in the hundreds of MBs upawards to multiple GBs.
+</p>
+
+<p>
+There are almost always slimmer lightweight images, I prefer Alpine Linux if available.
+</p>
+
+</aside>
+</section>
+<section id="slide-org2a96f3a">
+<h3 id="org2a96f3a">Networks</h3>
+<aside class="notes">
+<p>
+Docker provides a means to network containers together. Sometimes you cluster containers. For now, using the default network is fine.
+</p>
+
+</aside>
+</section>
+<section id="slide-orgf817649">
+<h3 id="orgf817649">Volumes</h3>
+<aside class="notes">
+<p>
+Everything in a docker container ceases to exist when you kill the container. Volumes are a way to make sure data persists between container runs.
+</p>
+
+</aside>
+
+</section>
+</section>
+<section>
+<section id="slide-org256f4cc">
+<h2 id="org256f4cc">Getting Docker</h2>
+<p>
+Docker provides support for Windows/Mac/Linux. though relies heavily on features embedded in the Linux Kernel to work.
+</p>
+</section>
+<section id="slide-org3aaef63">
+<h3 id="org3aaef63">Windows</h3>
+<p>
+Download Docker For Windows: <a href="https://docs.docker.com/docker-for-windows/install/">https://docs.docker.com/docker-for-windows/install/</a>
+</p>
+</section>
+<section id="slide-org88e9c67">
+<h3 id="org88e9c67">Mac</h3>
+<p>
+Download Docker For Mac: <a href="https://docs.docker.com/docker-for-mac/install/">https://docs.docker.com/docker-for-mac/install/</a>
+</p>
+</section>
+<section id="slide-org8a43c86">
+<h3 id="org8a43c86">Linux</h3>
+<p>
+For linux, using Ubuntu is probably the best: <a href="https://docs.docker.com/engine/installation/linux/ubuntu/">https://docs.docker.com/engine/installation/linux/ubuntu/</a>
+</p>
+
+</section>
+</section>
+<section>
+<section id="slide-orgf1c7be7">
+<h2 id="orgf1c7be7">Our first Dockerfile (building our first Image)</h2>
+<div class="outline-text-2" id="text-orgf1c7be7">
+</div>
+</section>
+<section id="slide-org0a811d2">
+<h3 id="org0a811d2">What is an Image</h3>
+<div class="outline-text-3" id="text-org0a811d2">
+</div>
+</section>
+<section id="slide-org2912157">
+<h4 id="org2912157">An image is a set of instructions, which form immutable layers.</h4>
+</section>
+<section >
+<div class="org-src-container">
+
+<pre  class="src src-dockerfile"><span style="color: #F92672;">FROM</span> node:<span style="color: #AE81FF;">8-alpine</span>
+<span style="color: #F92672;">LABEL</span> maintainer <span style="color: #E6DB74;">"Robby O'Connor <a href="mailto:robby.oconnor%40gmail.com">&lt;robby.oconnor@gmail.com&gt;</a>"</span>
+<span style="color: #F92672;">CMD</span> <span style="color: #AE81FF;">[</span><span style="color: #E6DB74;">"yarn"</span>,<span style="color: #E6DB74;">"start"</span><span style="color: #AE81FF;">]</span>
+<span style="color: #F92672;">WORKDIR</span> /app
+<span style="color: #F92672;">RUN</span> apk add --no-cache bash curl openssl git build-base gosu yarn <span style="color: #E6DB74; font-weight: bold;">\</span>
+--repository http://dl-3.alpinelinux.org/alpine/edge/testing/ <span style="color: #E6DB74; font-weight: bold;">\</span>
+--repository http://dl-3.alpinelinux.org/alpine/edge/community/
+<span style="color: #F92672;">COPY</span> docker/build.sh /
+<span style="color: #F92672;">RUN</span> bash /build.sh
+<span style="color: #F92672;">COPY</span> . /app
+~
+~
+~
+~
+~
+~
+~
+~
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-org2943055">
+<h2 id="org2943055">Where's the database and why do I care about Docker at all?</h2>
+<div class="outline-text-2" id="text-org2943055">
+</div>
+</section>
+<section id="slide-org1ad7266">
+<h3 id="org1ad7266">Less bootstrap time</h3>
+</section>
+<section id="slide-orgc4cef04">
+<h3 id="orgc4cef04">One environment for everything!</h3>
+</section>
+</section>
+<section>
+<section id="slide-org0bcb70b">
+<h2 id="org0bcb70b">Overview on Docker Compose</h2>
+<div class="outline-text-2" id="text-org0bcb70b">
+</div>
+</section>
+<section id="slide-org48bb47e">
+<h3 id="org48bb47e">A tool to orchastrate containers. You will have a container per process.</h3>
+<div class="outline-text-3" id="text-org48bb47e">
+</div>
+</section>
+<section id="slide-orga775c7a">
+<h4 id="orga775c7a">Example: Your app will run in one, MySQL in another, and whatever other service you need.</h4>
+</section>
+<section id="slide-org18287bb">
+<h3 id="org18287bb">Docker Compose files are specified using a language called YAML.</h3>
+</section>
+<section >
+<div class="org-src-container">
+
+<pre  class="src src-yaml"><span style="color: #FD971F;">version</span>: <span style="color: #E6DB74;">"2.1"</span>
+
+<span style="color: #FD971F;">services</span>:
+  <span style="color: #FD971F;">web</span>:
+    <span style="color: #FD971F;">user</span>: <span style="color: #E6DB74;">"${UID-1000}:${GID-1000}"</span>
+    <span style="color: #FD971F;">build</span>:
+      <span style="color: #FD971F;">context</span>: .
+    <span style="color: #FD971F;">ports</span>:
+      - 0.0.0.0:3000:3000
+    <span style="color: #FD971F;">depends_on</span>:
+      <span style="color: #FD971F;">mongodb</span>:
+        <span style="color: #FD971F;">condition</span>: service_healthy
+    <span style="color: #FD971F;">volumes</span>:
+      - .:/app
+    <span style="color: #FD971F;">restart</span>: unless-stopped
+    <span style="color: #FD971F;">container_name</span>: <span style="color: #E6DB74;">"app"</span>
+  <span style="color: #FD971F;">mongodb</span>:
+    <span style="color: #FD971F;">image</span>: mongo:3.4
+    <span style="color: #FD971F;">ports</span>:
+      - <span style="color: #E6DB74;">"0.0.0.0:27017:27017"</span>
+    <span style="color: #FD971F;">container_name</span>: <span style="color: #E6DB74;">"_mongo"</span>
+    <span style="color: #FD971F;">volumes</span>:
+      - ./data/mongo/db:/data/db
+    <span style="color: #FD971F;">healthcheck</span>:
+      <span style="color: #FD971F;">test</span>: [<span style="color: #E6DB74;">"CMD"</span>, <span style="color: #E6DB74;">"mongo"</span>, <span style="color: #E6DB74;">"--quiet"</span>, <span style="color: #E6DB74;">"localhost/test"</span>,
+             <span style="color: #E6DB74;">"--eval"</span>,<span style="color: #E6DB74;">"'quit(db.runCommand({ ping: 1 }).ok ? 0 : 1)';"</span>]
+      <span style="color: #FD971F;">interval</span>: 1m30s
+      <span style="color: #FD971F;">timeout</span>: 10s
+      <span style="color: #FD971F;">retries</span>: 3
+    <span style="color: #FD971F;">restart</span>: unless-stopped
+    <span style="color: #FD971F;">command</span>: <span style="color: #E6DB74;">"mongod --nojournal --smallfiles"
+~
+~
+~
+~
+~
+~
+~
+~</span>
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgb1f4e50">
+<h2 id="orgb1f4e50">More Info</h2>
+<div class="outline-text-2" id="text-orgb1f4e50">
+</div>
+</section>
+<section id="slide-orga902abb">
+<h3 id="orga902abb">Slides: <a href="https://github.com/robbyoconnor/cunycodes-fall17-dockertalk">https://github.com/robbyoconnor/cunycodes-fall17-dockertalk</a></h3>
+</section>
+<section id="slide-orgcef3968">
+<h3 id="orgcef3968">Docker User Guide: <a href="https://docs.docker.com/engine">https://docs.docker.com/engine</a>, <a href="https://docs.docker.com/compose">https://docs.docker.com/compose</a></h3>
+</section>
+</section>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/reveal.js/3.0.0/lib/js/head.min.js"></script>
+<script src="https://cdn.jsdelivr.net/reveal.js/3.0.0/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: true,
+center: true,
+slideNumber: 'c',
+rollingLinks: true,
+keyboard: true,
+overview: true,
+width: 1200,
+height: 800,
+margin: 0.20,
+minScale: 0.50,
+maxScale: 2.50,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: 'https://cdn.jsdelivr.net/reveal.js/3.0.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+ { src: 'https://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'https://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'https://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: 'https://cdn.jsdelivr.net/reveal.js/3.0.0/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }]
+});
+</script>
+</body>
+</html>

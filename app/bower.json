@@ -1,0 +1,21 @@
+{
+  "name": "app",
+  "description": "",
+  "main": "app.js",
+  "authors": [
+    "Robert O'Connor <rob@oconnor.ninja>"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "materialize": "^0.100.2"
+  }
+}

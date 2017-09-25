@@ -1,0 +1,32 @@
+version: "2.1"
+
+services:
+  web:
+    environment:
+      - DEBUG=app:*
+    user: "${UID-1000}:${GID-1000}"
+    build:
+      context: .
+    ports:
+      - '0.0.0.0:3000:3000'
+    depends_on:
+      mongodb:
+        condition: service_started
+    volumes:
+      - .:/app
+    restart: unless-stopped
+    container_name: "app"
+  mongodb:
+    image: mongo:3.4
+    ports:
+      - "0.0.0.0:27017:27017"
+    container_name: "mongo"
+    volumes:
+      - ./data/mongo/db:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--quiet", "localhost/test", "--eval", "'quit(db.runCommand({ ping: 1 }).ok ? 0 : 1)';"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    command: "mongod --nojournal --smallfiles"

@@ -1,0 +1,4 @@
+node_modules/
+bower_components/
+Dockerfile
+docker-compose*.yml

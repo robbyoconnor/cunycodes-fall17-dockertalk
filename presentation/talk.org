@@ -1,0 +1,123 @@
+#    -*- mode: org -*-
+#+OPTIONS: reveal_center:t reveal_progress:t reveal_history:t reveal_control:t
+#+OPTIONS: reveal_rolling_links:t reveal_keyboard:t reveal_overview:t num:nil
+#+OPTIONS: reveal_width:1200 reveal_height:800
+#+OPTIONS: toc:1
+#+REVEAL_MARGIN: 0.2
+#+REVEAL_MIN_SCALE: 0.5
+#+REVEAL_MAX_SCALE: 2.5
+#+REVEAL_TRANS: linear
+#+REVEAL_THEME: night
+#+REVEAL_HLEVEL: 1
+#+REVEAL_EXTRA_CSS: ./docker.css
+#+REVEAL_ROOT: https://cdn.jsdelivr.net/reveal.js/3.0.0/
+
+#+TITLE: CUNY Codes Fall 2017 Docker
+#+AUTHOR: Robby O'Connor
+#+EMAIL: robby.oconnor@gmail.com
+
+* Introduction
+** Hunter College CS Alum (Fall 2014)
+** CUNY Codes Alum (Spring 2016) and Peer Mentor
+** Infrastructure Engineer/Steering Committee Member for LibreHealth(http://librehealth.io)
+** I Really Love Docker -- A LOT!
+* What is Docker
+** Docker is a way to run containerized applications.
+** What does this mean?
+*** Isolated from all other processes, much like a virtual machine.
+*** The isolation pertains to: process id, networking, interprocess communication (IPC), mounts, and unix timesharing system.
+*** The isolation mechanism is called namespaces. Another feature which is used is called control groups, or cgroups.
+*** cgroups allow you to limit resource usage.
+*** A container is not real thing, it's what the namespaces and cgroups when pulled together form.
+
+* Overview of Docker
+** Fundamentally different from Virtual Machines
+ #+REVEAL: split
+[[file:vm.png]]
+[[file:container.png]]
+** Images
+#+BEGIN_NOTES
+Provides a means for collecting pre-built docker containers which can be replicated. This is where Docker shines.
+https://hub.docker.com has a lot of images. Sizes can vary, but typically span in the hundreds of MBs upawards to multiple GBs.
+
+There are almost always slimmer lightweight images, I prefer Alpine Linux if available.
+#+END_NOTES
+** Networks
+
+#+BEGIN_NOTES
+Docker provides a means to network containers together. Sometimes you cluster containers. For now, using the default network is fine.
+#+END_NOTES
+** Volumes
+#+BEGIN_NOTES
+Everything in a docker container ceases to exist when you kill the container. Volumes are a way to make sure data persists between container runs.
+#+END_NOTES
+
+* Getting Docker
+Docker provides support for Windows/Mac/Linux. though relies heavily on features embedded in the Linux Kernel to work.
+** Windows
+Download Docker For Windows: https://docs.docker.com/docker-for-windows/install/
+** Mac
+Download Docker For Mac: https://docs.docker.com/docker-for-mac/install/
+** Linux
+For linux, using Ubuntu is probably the best: https://docs.docker.com/engine/installation/linux/ubuntu/
+
+* Our first Dockerfile (building our first Image)
+** What is an Image
+*** An image is a set of instructions, which form immutable layers.
+#+REVEAL: split
+#+BEGIN_SRC dockerfile
+FROM node:8-alpine
+LABEL maintainer "Robby O'Connor <robby.oconnor@gmail.com>"
+CMD ["yarn","start"]
+WORKDIR /app
+RUN apk add --no-cache bash curl openssl git build-base gosu yarn \
+--repository http://dl-3.alpinelinux.org/alpine/edge/testing/ \
+--repository http://dl-3.alpinelinux.org/alpine/edge/community/
+COPY docker/build.sh /
+RUN bash /build.sh
+COPY . /app
+#+END_SRC
+* Where's the database and why do I care about Docker at all?
+** Less bootstrap time
+** One environment for everything!
+* Overview on Docker Compose
+** A tool to orchastrate containers. You will have a container per process.
+*** Example: Your app will run in one, MySQL in another, and whatever other service you need.
+** Docker Compose files are specified using a language called YAML.
+#+REVEAL: split
+#+BEGIN_SRC yaml
+version: "2.1"
+
+services:
+  web:
+    user: "${UID-1000}:${GID-1000}"
+    build:
+      context: .
+    ports:
+      - 0.0.0.0:3000:3000
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    restart: unless-stopped
+    container_name: "app"
+  mongodb:
+    image: mongo:3.4
+    ports:
+      - "0.0.0.0:27017:27017"
+    container_name: "_mongo"
+    volumes:
+      - ./data/mongo/db:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--quiet", "localhost/test",
+             "--eval","'quit(db.runCommand({ ping: 1 }).ok ? 0 : 1)';"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    command: "mongod --nojournal --smallfiles"
+#+END_SRC
+* More Info
+** Slides: https://github.com/robbyoconnor/cunycodes-fall17-dockertalk
+** Docker User Guide: https://docs.docker.com/engine, https://docs.docker.com/compose

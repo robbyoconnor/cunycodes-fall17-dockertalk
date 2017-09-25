@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h2 Register
+
+  form(action="/register",method="post")
+
+    div.input-gield
+      label Username
+      input(type="text",name="username")
+
+    div.input-field
+      label Password
+      input(type="password",name="password")
+
+    div
+      button.btn.waves-effect.waves-light(type="submit" name="action") Register

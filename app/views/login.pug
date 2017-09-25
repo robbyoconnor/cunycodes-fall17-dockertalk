@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  h2 Log In
+
+  form(action="/login",method="post")
+    div.input-field.col
+      label Username
+      input(type="text",name="username")
+
+    div.input-field
+      label Password
+      input(type="password",name="password")
+
+    div.input-field
+      button.btn.waves-effect.waves-light(type="submit" name="action") Log In

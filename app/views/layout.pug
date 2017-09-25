@@ -1,0 +1,27 @@
+doctype html
+html
+  head
+    title CUNY Codes Docker Demo App
+
+    link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto')
+    link(rel='stylesheet', href='/bower_components/materialize/dist/css/materialize.min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    block scripts
+      script(src='/bower_components/jquery/dist/jquery.min.js')
+
+  body
+    nav.blue-grey.darken-4
+      .navbar-wrapper
+      a.brand-logo.center(href="/") App Name
+      ul.left.hide-on-med-and-down
+        if (typeof(user) == 'undefined')
+          li
+            a(href="/register") Register
+          li
+            a(href="/login") Log In
+        else
+          li
+            a(href="/logout") Log Out
+
+    .container
+      block content
